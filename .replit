@@ -1,0 +1,27 @@
+run = "npm run dev"
+entrypoint = "scripts/start-all.sh"
+
+[packager]
+language = "nodejs"
+
+[packager.features]
+packageSearch = true
+guessImports = true
+enabledForHosting = false
+
+[languages.javascript]
+pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
+syntax = "javascript"
+
+[languages.javascript.languageServer]
+start = "typescript-language-server --stdio"
+
+[env]
+NODE_ENV = "development"
+PORT = "3000"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix"]
+
+[deployment]
+run = ["sh", "-c", "chmod +x scripts/*.sh && npm run dev"]

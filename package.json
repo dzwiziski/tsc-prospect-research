@@ -1,0 +1,24 @@
+{
+  "name": "tsc-prospect-research",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "./scripts/start-all.sh",
+    "dev:all": "./scripts/start-all.sh",
+    "build:all": "npm run build:frontend && npm run build:services",
+    "build:frontend": "cd frontend && npm run build",
+    "build:services": "cd services/api-gateway && npm run build && cd ../company-search && npm run build && cd ../hubspot-integration && npm run build && cd ../openai-research && npm run build",
+    "start:all": "concurrently \"npm run start:services\" \"npm run start:frontend\"",
+    "start:frontend": "cd frontend && npm start",
+    "start:services": "concurrently \"cd services/company-search && npm start\" \"cd services/hubspot-integration && npm start\" \"cd services/openai-research && npm start\" \"cd services/api-gateway && npm start\"",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "k8s:deploy": "kubectl apply -f k8s/",
+    "terraform:init": "cd infrastructure && terraform init",
+    "terraform:plan": "cd infrastructure && terraform plan",
+    "terraform:apply": "cd infrastructure && terraform apply"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

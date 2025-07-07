@@ -1,0 +1,3 @@
+-- Sample companies for demo
+-- This would typically be in a real database
+-- For Replit demo, we're using mock data in the resolvers
