@@ -72,7 +72,8 @@ interface CompanyResearch {
   generatedAt: string;
 }
 
-export const CompanySearch: React.FC = () => {
+// Named function component (fixes Fast Refresh issue)
+function CompanySearch() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [searchOptions, setSearchOptions] = useState<Company[]>([]);
   const [research, setResearch] = useState<CompanyResearch | null>(null);
@@ -92,13 +93,14 @@ export const CompanySearch: React.FC = () => {
           }
         } catch (error) {
           console.error('Search error:', error);
+          setSearchOptions([]);
         }
       }
     }, 300),
     [searchCompanies]
   );
 
-  const handleCompanySelect = async (company: Company | null) => {
+  const handleCompanySelect = useCallback(async (company: Company | null) => {
     setSelectedCompany(company);
     setResearch(null);
     
@@ -114,7 +116,7 @@ export const CompanySearch: React.FC = () => {
         console.error('Research error:', error);
       }
     }
-  };
+  }, [getResearch]);
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
@@ -263,4 +265,7 @@ export const CompanySearch: React.FC = () => {
       )}
     </Box>
   );
-};
+}
+
+// Named export (fixes Fast Refresh issue)
+export { CompanySearch };
