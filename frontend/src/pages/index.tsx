@@ -1,6 +1,9 @@
 import React from 'react';
 import { CompanySearch } from '../components/CompanySearch';
 
-export default function Home() {
+// Named function component
+function HomePage() {
   return <CompanySearch />;
 }
+
+export default HomePage;
