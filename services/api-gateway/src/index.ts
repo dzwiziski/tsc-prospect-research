@@ -3,13 +3,13 @@ import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import rateLimit from 'express-rate-limit';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 
 async function startServer() {
   const app = express();
   
+  // Simplified security configuration for Replit
   app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false
@@ -21,12 +21,15 @@ async function startServer() {
   }));
   
   app.use(compression());
-  
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100
+
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      service: 'api-gateway',
+      timestamp: new Date().toISOString()
+    });
   });
-  app.use(limiter);
 
   const server = new ApolloServer({
     typeDefs,
@@ -40,8 +43,9 @@ async function startServer() {
 
   const PORT = process.env.PORT || 4000;
   
-  app.listen(PORT, () => {
-    console.log(`🚀 API Gateway running on http://localhost:${PORT}${server.graphqlPath}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 API Gateway running on http://0.0.0.0:${PORT}${server.graphqlPath}`);
+    console.log(`📊 Health check: http://0.0.0.0:${PORT}/health`);
   });
 }
 
