@@ -9,10 +9,14 @@ import { resolvers } from './resolvers';
 async function startServer() {
   const app = express();
   
-  // Simplified security configuration for Replit
+  // Disable trust proxy to avoid rate limiting issues in Replit
+  app.set('trust proxy', false);
+  
+  // Security middleware with relaxed settings for development
   app.use(helmet({
     contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false
+    crossOriginEmbedderPolicy: false,
+    hsts: false
   }));
   
   app.use(cors({
@@ -21,25 +25,40 @@ async function startServer() {
   }));
   
   app.use(compression());
+  app.use(express.json());
 
   // Health check endpoint
   app.get('/health', (req, res) => {
     res.json({ 
       status: 'ok', 
       service: 'api-gateway',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      port: process.env.PORT || 4000
     });
+  });
+
+  // Simple logging middleware
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
   });
 
   const server = new ApolloServer({
     typeDefs,
     resolvers,
     introspection: true,
-    playground: true
+    playground: true,
+    context: ({ req }) => {
+      return { req };
+    }
   });
 
   await server.start();
-  server.applyMiddleware({ app, path: '/graphql' });
+  server.applyMiddleware({ 
+    app, 
+    path: '/graphql',
+    cors: false // We already configured CORS above
+  });
 
   const PORT = process.env.PORT || 4000;
   
@@ -50,6 +69,6 @@ async function startServer() {
 }
 
 startServer().catch(error => {
-  console.error('Failed to start server:', error);
+  console.error('❌ Failed to start server:', error);
   process.exit(1);
 });
