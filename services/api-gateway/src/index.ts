@@ -9,10 +9,7 @@ import { resolvers } from './resolvers';
 async function startServer() {
   const app = express();
   
-  // Disable trust proxy to avoid rate limiting issues in Replit
-  app.set('trust proxy', false);
-  
-  // Security middleware with relaxed settings for development
+  // Basic security middleware (no rate limiting)
   app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
@@ -37,7 +34,7 @@ async function startServer() {
     });
   });
 
-  // Simple logging middleware
+  // Request logging
   app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
@@ -47,28 +44,21 @@ async function startServer() {
     typeDefs,
     resolvers,
     introspection: true,
-    playground: true,
-    context: ({ req }) => {
-      return { req };
-    }
+    playground: true
   });
 
   await server.start();
-  server.applyMiddleware({ 
-    app, 
-    path: '/graphql',
-    cors: false // We already configured CORS above
-  });
+  server.applyMiddleware({ app, path: '/graphql' });
 
   const PORT = process.env.PORT || 4000;
   
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 API Gateway running on http://0.0.0.0:${PORT}${server.graphqlPath}`);
-    console.log(`📊 Health check: http://0.0.0.0:${PORT}/health`);
+    console.log(`✅ API Gateway running successfully on http://0.0.0.0:${PORT}${server.graphqlPath}`);
+    console.log(`🏥 Health check: http://0.0.0.0:${PORT}/health`);
   });
 }
 
 startServer().catch(error => {
-  console.error('❌ Failed to start server:', error);
+  console.error('❌ Failed to start API Gateway:', error);
   process.exit(1);
 });
